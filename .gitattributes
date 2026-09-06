@@ -1,0 +1,3 @@
+# Preserve bytes exactly: this repo vendors third-party PHP, and a CRLF
+# rewrite on Windows would change every file that ships to the container.
+* -text

@@ -1,0 +1,54 @@
+# BEGIN LSCACHE
+# END LSCACHE
+
+# BEGIN NON_LSCACHE
+# END NON_LSCACHE
+
+# BEGIN Allow PDF Access
+<FilesMatch "\.pdf$">
+  Require all granted
+</FilesMatch>
+# END Allow PDF Access
+
+# BEGIN WordPress
+# The directives (lines) between "BEGIN WordPress" and "END WordPress" are
+# dynamically generated, and should only be modified via WordPress filters.
+# Any changes to the directives between these markers will be overwritten.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
+
+# BEGIN TUTOR_PREVENT_HOTLINKING
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+
+	# Exclude certain files from being blocked
+	RewriteCond %{REQUEST_URI} !^/wp-content/plugins/tutor/assets/images/tutor-logo\.png [NC]
+	RewriteCond %{REQUEST_URI} !^/wp-content/uploads/2023/12/1-1\.png [NC]
+
+
+	# Allow direct access or access with a referer from the current site only.
+	RewriteCond %{HTTP_REFERER} !^$ [NC]
+	RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?aviacourse.com [NC]
+
+	# Block access to files with the specified extensions
+	RewriteRule \.(jpg|jpeg|png|gif|mp4|mov|mp3|avi|flv|wmv)$ - [NC,F,L]
+</IfModule>
+# END TUTOR_PREVENT_HOTLINKING
+
+, do not edit
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php83” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php83 .php .php8 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit

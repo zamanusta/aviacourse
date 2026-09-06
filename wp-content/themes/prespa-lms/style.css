@@ -1,0 +1,193 @@
+/*
+ Theme Name:        Prespa LMS
+ Theme URI:         https://nasiothemes.com/themes/prespa/
+ Description:       Prespa LMS serves as a child theme of Prespa, inheriting all the features of Prespa. It is a minimalist and simple e-learning theme that can be used as a learning management system to manage free and premium courses. The theme integrates flawlessly with Tutor LMS and WooCommerce plugins to create the best possible learning experience. It is suitable for schools, student portals, teacher portals, education centers, universities, virtual classrooms, educational portals, training centers, coaching platforms and others. You can create unlimited courses, quizes and online assessments, as well as manage students and instructors or even create Udemy or Coursera type of website to allow others to sell their courses on your platform. Theme demo: https://prespa-lms-demo.nasiothemes.com/
+ Author:            Atanas Yonkov
+ Author URI:        http://nasiothemes.com
+ Template:          prespa
+ Requires at least: 6.1
+ Tested up to:      6.8
+ Requires PHP:      5.6
+ Version:           1.0.2
+ License:           GNU General Public License v2 or later
+ License URI:       http://www.gnu.org/licenses/gpl-2.0.html
+ Text Domain:       prespa-lms
+ Tags:              education, one-column, two-columns, three-columns, four-columns, grid-layout, right-sidebar, left-sidebar, block-patterns, wide-blocks, custom-colors, custom-header, custom-logo, custom-menu, featured-image-header, featured-images, footer-widgets, full-width-template, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready
+*/
+
+.prespa-pattern-lms-cards .wp-block-column .wp-block-columns {
+    border-bottom: 5px solid transparent;
+    transition: border-bottom .25s;
+}
+
+.prespa-pattern-lms-cards .wp-block-column:nth-child(1) .wp-block-columns:hover {
+    border-bottom: 5px solid #356df1;
+}
+
+.prespa-pattern-lms-cards .wp-block-column:nth-child(2) .wp-block-columns:hover {
+    border-bottom: 5px solid #45d5bb;
+}
+
+.prespa-pattern-lms-cards .wp-block-column:nth-child(3) .wp-block-columns:hover {
+    border-bottom: 5px solid #f97d09;
+}
+
+.prespa-pattern-lms-cards .wp-block-column:nth-child(4) .wp-block-columns:hover {
+    border-bottom: 5px solid #c69dff;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link {
+    position: relative;
+    padding: 0 !important;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link span {
+    display: block;
+    position: relative;
+    padding: var(--wp--preset--spacing--small);
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link::before,
+.prespa-pattern-lms-categories .wp-block-button__link::after,
+.prespa-pattern-lms-categories .wp-block-button__link span::before,
+.prespa-pattern-lms-categories .wp-block-button__link span::after {
+    content: "";
+    position: absolute;
+    transition: all 0.4s ease-in-out;
+    background: #356df1;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link::before,
+.prespa-pattern-lms-categories .wp-block-button__link::after {
+    width: 0;
+    height: 2px;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link span::before,
+.prespa-pattern-lms-categories .wp-block-button__link span::after {
+    width: 2px;
+    height: 0;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link::before {
+    top: 0;
+    left: 0;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link::after {
+    bottom: 0;
+    right: 0;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link span::before {
+    top: 0;
+    right: 0;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link span::after {
+    bottom: 0;
+    left: 0;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link:hover::before,
+.prespa-pattern-lms-categories .wp-block-button__link:hover::after {
+    width: 100%;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link:hover span::before,
+.prespa-pattern-lms-categories .wp-block-button__link:hover span::after {
+    height: 100%;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link:hover {
+    filter: brightness(1);
+    opacity: 1;
+}
+
+.prespa-pattern-lms-categories .wp-block-button__link {
+    margin: 0;
+}
+
+.prespa-pattern-lms-categories .wp-block-button {
+    margin: 4px;
+}
+
+.prespa-pattern-lms-categories .wp-block-button:hover span {
+    color: #356df1;
+}
+
+.prespa-pattern-courses figure {
+    display: inline-block;
+    overflow: hidden;
+}
+
+.prespa-pattern-courses figure a {
+	display: block;
+	height: 100%;
+}
+
+.prespa-pattern-courses img {
+    width: fit-content;
+    transition: all 0.4s ease;
+    display: block;
+}
+
+.prespa-pattern-courses figure:hover img {
+    transform: scale(1.05);
+	opacity: .95;
+	filter: brightness(95%)
+}
+
+/* Tutor LMS */
+body.single-courses {
+	--wp--preset--color--bgr: #fff !important;
+}
+
+.archive .tutor-wrap {
+    margin: 4rem auto;
+    max-width: 1180px;
+}
+
+.single-courses .tutor-wrap {
+    margin: 0;
+}
+
+.tutor-course-spotlight-wrapper .tutor-lesson-wrapper iframe {
+    width: 100%;
+    height: 430px
+}
+
+.tutor-course-single-content-wrapper {
+	margin-top: 2rem;
+    margin-bottom: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1180px;
+}
+
+@media (min-width: 54rem) {
+    .single-courses.has-sidebar aside {
+        width: 31%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .tutor-course-single-content-wrapper #tutor-single-entry-content {
+        min-height: 100vh;
+        border: 1px solid #ebebeb;
+        background: white;
+    }
+}
+
+@media (min-width: 1400px) {
+    .single-courses .tutor-container {
+        max-width: 1180px;
+    }
+}
+
+@media(min-width:1040px) {
+    .prespa-pattern-lms-cards.alignwide {
+        margin-left: -2.5rem !important;
+        margin-right: -2.5rem !important;
+    }
+}

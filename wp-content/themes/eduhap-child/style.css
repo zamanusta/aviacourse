@@ -1,0 +1,28 @@
+/*
+ Theme Name:   Eduhap Child Theme
+ Theme URI:    https://themesvila.com/themes-wp/eduhap/
+ Description:  This is eduhap Child Theme
+ Author:       Themesvila
+ Author URI:   https://themeforest.net/user/theme_ocean
+ Template:     eduhap
+ Version:      1.4
+ License:      GNU General Public License v2 or later
+ License URI:  http://www.gnu.org/licenses/gpl-2.0.html
+ Tags:  two-columns, right-sidebar
+ Text Domain:  eduhap-child
+*/
+
+
+body{
+	
+
+}
+.menu-toggle {
+  display: none;
+}
+@media (max-width: 991px){
+	.menu-toggle {
+		top: -5px;
+	  display: block;
+	}	
+}

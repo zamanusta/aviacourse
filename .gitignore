@@ -1,0 +1,26 @@
+# Everything below lives on a persistent Docker volume, not in the image.
+# Plugins and translations are managed from wp-admin; uploads are user media.
+wp-content/plugins/
+wp-content/languages/
+wp-content/uploads/
+wp-content/fonts/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+wp-content/litespeed/
+wp-content/backup*/
+wp-content/ai1wm-backups/
+wp-content/debug.log
+wp-content/advanced-cache.php
+wp-content/object-cache.php
+
+# Never commit
+*.sql
+*.zip
+*.env
+.env*
+error_log
+
+# OS noise
+.DS_Store
+Thumbs.db

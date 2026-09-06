@@ -1,0 +1,267 @@
+@media (min-width: 1200px) {
+  .nav-item.dropdown .dropdown-menu {
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    top: 120%;
+  }
+  .nav-item.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    top: 100%;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  .container-padding {
+    padding: 0px 20px;
+  }
+  .center-heading p {
+    padding: 0px 0px;
+  }
+  .client-logo {
+    margin-bottom: 20px;
+  }
+  .site-navigation {
+    padding: 15px 20px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .section-padding {
+    padding: 60px 0px;
+  }
+  .site-navigation {
+    padding: 15px 20px !important;
+  }
+  .container-padding {
+    padding: 0px 20px;
+  }
+  .navbar {
+    padding: 10px 10px;
+  }
+  .navbar-nav .nav-link {
+    padding: 14px 20px;
+    border-right: 0px;
+  }
+  .client-logo {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .blog-item {
+    margin-bottom: 40px;
+  }
+  .about::before {
+    width: 100%;
+  }
+  .center-heading p {
+    padding: 0px 0px;
+  }
+  .banner-4 h1 {
+    font-size: 47px;
+    line-height: 61px;
+  }
+  .banner-4 p {
+    font-size: 16px;
+    padding: 0px 0px;
+  }
+  .woocommerce-form-coupon {
+    display: block;
+    width: 100%;
+  }
+}
+
+@media (max-width: 991px) {
+	.footer-btm{
+		text-align: center;
+	}
+	.footer-btm .footer_menu ul{
+		margin-top: 5px!important;
+	}
+}
+@media (max-width: 768px) {
+  .site-navigation {
+    padding: 20px 20px;
+  }
+  .navbar-nav .nav-link {
+    padding: 10px 0px;
+  }
+  .navbar-collapse {
+    padding: 20px 0px;
+  }
+  .banner-3 .banner-content h1 {
+    font-size: 46px;
+    line-height: 60px;
+  }
+  .banner-4 h1 {
+    font-size: 47px;
+    line-height: 61px;
+  }
+  .banner-4 p {
+    font-size: 16px;
+    padding: 0px 0px;
+  }
+  .section-heading h3 {
+    font-size: 32px;
+  }
+  .container-padding {
+    padding: 0px 10px;
+  }
+  .feature-item, .counter-item {
+    margin-bottom: 40px;
+  }
+  .about-img {
+    padding-left: 0px;
+  }
+  .px-120 {
+    padding: 0px 10px;
+  }
+  .testimonial-item {
+    padding: 35px;
+  }
+  .client-logo {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .about::before {
+    width: 100%;
+  }
+  .blog-item {
+    margin-bottom: 40px;
+  }
+  .comments .media {
+    display: block;
+  }
+  .comments .media .media-body {
+    padding-left: 0px;
+  }
+  .author .author-img {
+    margin: 0px 0px 25px;
+    float: none;
+  }
+  .single-post-content .post-meta .blog-comment {
+    float: none;
+  }
+  .center-heading p {
+    padding: 0px;
+  }
+}
+@media (max-width: 767px) {
+	.header-top.header-one{
+		text-align: center;
+	}
+	.menu-toggle {
+		top: -5px;
+	}
+}
+@media (max-width: 480px) {
+  .site-navigation {
+    padding: 10px 10px;
+  }
+  .navbar-nav .nav-link {
+    padding: 14px 20px;
+  }
+  .header-contact li, .header-socials li {
+    float: none;
+    text-align: center;
+  }
+  .banner .banner-content h1 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  .banner-4 h1 {
+    font-size: 34px;
+    line-height: 50px;
+  }
+  .banner .banner-content .btn {
+    margin-bottom: 10px;
+  }
+  .banner {
+    padding: 87px 0px 150px;
+  }
+  .header-top {
+    padding: 10px 0px;
+  }
+  .header-top p {
+    display: none;
+  }
+  .container-padding {
+    padding: 0px 20px;
+  }
+  .header-right a {
+    margin-left: 0px;
+    padding-left: 0px;
+    margin-right: 10px;
+    border-left: 1px solid transparent;
+  }
+  .center-heading p {
+    padding: 0px;
+  }
+  .section-heading h3 {
+    font-size: 24px;
+    line-height: 34px;
+  }
+  .feature-item, .counter-item {
+    margin-bottom: 40px;
+  }
+  .about-features li i {
+    float: none;
+  }
+  .about-img {
+    padding-left: 0px;
+  }
+  .px-120 {
+    padding: 0px 10px;
+  }
+  .testimonial-item {
+    padding: 35px;
+  }
+  .form-inner {
+    padding: 40px 20px;
+  }
+  .subscribe-form a {
+    position: static;
+    margin-top: 10px;
+  }
+  .course-filter li {
+    display: block;
+    margin: 0px 0px 15px 0px;
+  }
+  .client-logo {
+    margin-bottom: 20px;
+  }
+  .course-list-item .course-content {
+    text-align: center;
+  }
+  .blog-item {
+    margin-bottom: 40px;
+  }
+  .counter-inner .counter-item {
+    border-right: 0px;
+  }
+  .comments .media {
+    display: block;
+  }
+  .comments .media .media-body {
+    padding-left: 0px;
+  }
+  .author .author-img {
+    margin: 0px 0px 25px;
+    float: none;
+  }
+  .article-share ul li:first-child {
+    display: block;
+  }
+  .post-single blockquote {
+    padding-left: 30px;
+  }
+  .single-post-content .post-meta .blog-comment {
+    float: none;
+  }
+  .woocommerce form.checkout_coupon .form-row.form-row-first {
+    width: 100%;
+  }
+  .banner-cat span {
+    margin-bottom: 5px;
+  }
+}
