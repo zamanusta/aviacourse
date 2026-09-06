@@ -14,9 +14,11 @@ wp-content/debug.log
 wp-content/advanced-cache.php
 wp-content/object-cache.php
 
-# Never commit
-*.sql
-*.zip
+# Never commit. Anchored to the repo root on purpose: an unanchored *.zip
+# also swallows theme-bundled plugin packages such as
+# wp-content/themes/eduhap/inc/plugins/eduhap-core.zip, which TGMPA installs from.
+/*.sql
+/*.zip
 *.env
 .env*
 error_log
