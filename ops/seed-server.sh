@@ -40,7 +40,8 @@ say "Target"
 echo "  wordpress : $WP_CT"
 echo "  mariadb   : $DB_CT  (db: $DB_NAME)"
 echo
-echo "  This DROPS every table in '$DB_NAME' and overwrites wp-content/"
+if [ "${SKIP_DB:-0}" = "1" ]; then echo "  SKIP_DB=1: the database is left alone."; else echo "  This DROPS every table in '$DB_NAME'."; fi
+echo "  Overwrites wp-content/"
 echo "  {plugins,languages,uploads,fonts} on the volume."
 if [ "${FORCE:-0}" != "1" ]; then
   read -r -p "  Type 'yes' to continue: " ok
@@ -48,6 +49,9 @@ if [ "${FORCE:-0}" != "1" ]; then
 fi
 
 # ---------------------------------------------------------------- 1. database
+if [ "${SKIP_DB:-0}" = "1" ]; then
+say "SKIP_DB=1 - leaving the database untouched"
+else
 say "Dropping existing tables in $DB_NAME"
 mysql -N -B -e "SELECT CONCAT('DROP TABLE IF EXISTS \`',table_name,'\`;')
   FROM information_schema.tables WHERE table_schema='$DB_NAME';" > /tmp/drop-tables.sql
@@ -64,6 +68,7 @@ mysql -N -B -e "SELECT CONCAT('ALTER TABLE \`',table_name,'\` ENGINE=InnoDB;')
   FROM information_schema.tables WHERE table_schema='$DB_NAME' AND engine='MyISAM';" > /tmp/to-innodb.sql
 mysql --force "$DB_NAME" < /tmp/to-innodb.sql || true
 echo "  MyISAM left: $(mysql -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$DB_NAME' AND engine='MyISAM';")"
+fi
 
 # ------------------------------------------------------------- 2. wp-content
 say "Unpacking plugins, languages, uploads and fonts (~660 MB)"
@@ -82,11 +87,23 @@ SRC="$STAGE/public_html/wp-content"
 say "Copying into the volume"
 for d in plugins languages uploads fonts; do
   [ -d "$SRC/$d" ] || { echo "  $d: not in export, skipped"; continue; }
-  docker exec "$WP_CT" bash -c "rm -rf /var/www/html/wp-content/$d && mkdir -p /var/www/html/wp-content/$d"
+  # These paths are Docker volume mountpoints. "rm -rf <mountpoint>" empties it
+  # and then fails with EBUSY on the mountpoint itself, which aborts under set -e.
+  # Delete the contents instead.
+  docker exec "$WP_CT" bash -c "mkdir -p /var/www/html/wp-content/$d && find /var/www/html/wp-content/$d -mindepth 1 -delete"
   docker cp "$SRC/$d/." "$WP_CT:/var/www/html/wp-content/$d/"
   echo "  $d: $(du -sh "$SRC/$d" | cut -f1)"
 done
 docker exec "$WP_CT" chown -R www-data:www-data /var/www/html/wp-content
+
+say "Verifying the volumes"
+for d in plugins languages uploads fonts; do
+  n=$(docker exec "$WP_CT" bash -c "ls -1 /var/www/html/wp-content/$d 2>/dev/null | wc -l")
+  printf '  %-10s %s entries
+' "$d" "$n"
+  if [ "$d" = "plugins" ] && [ "$n" -lt 10 ]; then die "plugins volume looks empty - the copy did not land"; fi
+  if [ "$d" = "uploads" ] && [ "$n" -lt 1 ];  then die "uploads volume is empty - the copy did not land"; fi
+done
 
 # -------------------------------------------------------------- 3. tidy WP up
 say "Post-import"
