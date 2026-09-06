@@ -1,94 +1,116 @@
-# AviaCourse → Coolify migration runbook
+# AviaCourse → Coolify — first-time setup
 
-## What the export actually contains (verified from your two files)
+Target: `infra.entropol.com`, project **LMS**, environment **production**.
+DNS is being pointed immediately and the site has no live visitors, so there is
+no maintenance-window choreography here — deploy, seed, switch.
+
+## What the export contained (verified, not assumed)
 
 | | |
 |---|---|
-| Site URL | `https://www.aviacourse.com` (siteurl **and** home) |
-| WordPress | 7.1, single site (no multisite) |
-| DB | `bizjetco_wp388`, prefix **`wpct_`**, utf8mb4_unicode_520_ci, MariaDB 10.11 |
-| Engines | **106 MyISAM** tables + 10 InnoDB → converted to InnoDB during import |
-| Stack | WooCommerce 11.0.1, Tutor LMS + Tutor Pro, Elementor, theme `eduhap` / `eduhap-child` |
-| Payments | Stripe + iyzico gateways |
-| Source host | cPanel + **LiteSpeed** (`litespeed-cache` plugin, `php.ini`/`.user.ini`) |
-| Zip layout | everything under `public_html/` — 548 MB zip, 48 571 entries |
-| Junk in zip | `academy/` = a bare 98 MB `.git` and nothing else; plus `upgrade-temp-backup/`, `litespeed/`, `error_log`, `.tmb` — all excluded by the loader |
+| Site URL | `https://www.aviacourse.com` (`siteurl` and `home` both) |
+| WordPress | 7.1, single site |
+| DB | `bizjetco_wp388`, prefix **`wpct_`**, utf8mb4_unicode_520_ci |
+| Engines | 106 MyISAM + 10 InnoDB → all InnoDB after seeding |
+| Stack | WooCommerce 11.0.1, Tutor LMS + Pro, Elementor, theme `eduhap-child` |
+| Payments | Stripe + iyzico |
+| Old host | cPanel + LiteSpeed |
+| Zip | 548 MB under `public_html/`; `academy/` is a bare 98 MB `.git` — ignored |
 
-**The domain does not change → no `search-replace` is needed.** That is what makes this short.
-
----
-
-## Shortest path — 4 steps
-
-### 1. Copy the two files to the Coolify host
-```bash
-ssh root@COOLIFY_HOST 'mkdir -p /root/aviacourse'
-scp "C:\Users\zaman\Desktop\aviacourseWP.zip" "C:\Users\zaman\Desktop\bizjetco_wp388.sql" root@COOLIFY_HOST:/root/aviacourse/
-```
-(~570 MB — run it from a stable connection, or `rsync -P` so it can resume.)
-
-### 2. Create the stack in Coolify
-* **New Resource → Docker Compose (Empty)**
-* Paste `docker-compose.yaml` from this folder.
-* Open the `wordpress` service → **Domains** → set `https://www.aviacourse.com`.
-  *(Leave TLS to Coolify/Traefik. If DNS is not switched yet, use a temporary
-  domain such as `new.aviacourse.com` here and change it back at cutover.)*
-* **Deploy.** Wait until both containers are healthy. The site will 500/blank — expected, it is empty.
-
-### 3. Load files + database
-```bash
-ssh root@COOLIFY_HOST
-apt-get update && apt-get install -y unzip     # only if missing
-bash /root/aviacourse/load-aviacourse.sh
-```
-It will: unpack the zip (minus junk) → point `wp-config.php` at the container's DB env vars →
-insert the reverse-proxy HTTPS fix → wipe & refill `/var/www/html` → drop/import the dump →
-convert MyISAM → InnoDB → install wp-cli → deactivate `litespeed-cache` → flush rewrites.
-
-### 4. Verify, then switch DNS
-```bash
-curl -sI --resolve www.aviacourse.com:443:COOLIFY_HOST_IP https://www.aviacourse.com/ | head -n1
-curl -sI --resolve www.aviacourse.com:443:COOLIFY_HOST_IP https://www.aviacourse.com/courses/icao-sms/ | head -n1
-```
-Both must be `200`. Then point the `A` record for `aviacourse.com` + `www` at the Coolify host.
+The domain does not change, so **no `search-replace` is needed**.
 
 ---
 
-## Things that will bite you if skipped
+## 1. MariaDB
 
-1. **Reverse-proxy HTTPS.** Traefik terminates TLS, so PHP sees plain HTTP and WordPress
-   redirect-loops. The loader adds the `HTTP_X_FORWARDED_PROTO` block to `wp-config.php`.
-   This is the single most common Coolify+WordPress failure.
-2. **LiteSpeed.** The old host was LiteSpeed; `litespeed-cache` is deactivated and its
-   `advanced-cache.php` / `object-cache.php` drop-ins are deleted. The `.htaccess`
-   LSCACHE blocks are empty and harmless.
-3. **PHP limits.** The old `php.ini`/`.user.ini` are cPanel artefacts and are **ignored** by
-   mod_php in the container — the compose `command:` re-applies them (512M memory,
-   256M uploads, 5000 input vars). Tutor LMS course uploads need this.
-4. **`AllowOverride All`** is set explicitly in the compose `command:` so `.htaccess`
-   permalinks and the Tutor hotlink-protection rules keep working.
-5. **MyISAM.** 106 tables. Converted to InnoDB so WooCommerce order writes are transactional.
+Coolify → project **LMS** → **+ New** → **Database → MariaDB**.
 
-## Cutover for a live WooCommerce shop
+* Name `aviacourse-mariadb`, image `mariadb:11` (matches your other sites)
+* Database `aviacourse`, user `aviacourse`
+* Deploy, then copy the generated password and the container name.
 
-Your dump is from **07 Sep 2026 01:13**. Any order placed on the old server after that
-timestamp is not in it. So:
+> The one-click *"Wordpress With Mariadb"* service is deliberately **not** used:
+> it mounts all of `/var/www/html` as a volume and runs `wordpress:latest`, so
+> there is no build step for a git push to trigger, and no way to pin WP 7.1.
 
-1. Do steps 1–3 now with the current dump and test everything.
-2. At cutover: put the old site in maintenance mode, take a **fresh** dump, re-run
-   *only* the DB part (`SQL=/root/aviacourse/fresh.sql bash load-aviacourse.sh` — it will
-   also re-copy files, which is harmless), then flip DNS.
-3. Lower the DNS TTL to 300s a day beforehand.
-4. Keep the old server reachable for ~48h, but with writes disabled, so nothing splits.
+## 2. The application
+
+Coolify → project **LMS** → **+ New** → **Public/Private Repository**.
+
+* Repository `zamanusta/aviacourse`, branch `main`
+* Build pack **Dockerfile**, base directory `/`
+* Port **80**
+* Domain `https://www.aviacourse.com` (add `https://aviacourse.com` too)
+
+**Environment variables** — from `aviacourse-coolify-env.txt`:
+
+```
+WORDPRESS_DB_HOST      <aviacourse-mariadb container>:3306
+WORDPRESS_DB_NAME      aviacourse
+WORDPRESS_DB_USER      aviacourse
+WORDPRESS_DB_PASSWORD  <generated by Coolify>
+WORDPRESS_AUTH_KEY     … 8 salts
+```
+
+**Persistent storage** — four volume mounts, or plugins and media vanish on
+every redeploy:
+
+| mount path |
+|---|
+| `/var/www/html/wp-content/plugins` |
+| `/var/www/html/wp-content/languages` |
+| `/var/www/html/wp-content/uploads` |
+| `/var/www/html/wp-content/fonts` |
+
+Make sure the app and the database share a network (Coolify's
+*Connect To Predefined Network* toggle) — same as `entropol/safejets-parts`.
+
+**Deploy.** The site will error until it has data. That is expected.
+
+## 3. Seed the data
+
+```bash
+ssh root@<coolify-host> 'mkdir -p /root/aviacourse'
+scp aviacourseWP.zip bizjetco_wp388.sql root@<coolify-host>:/root/aviacourse/
+```
+
+```bash
+apt-get update && apt-get install -y unzip     # if missing
+DB_CT=<mariadb container> bash /root/aviacourse/seed-server.sh
+```
+
+Loads the dump, converts MyISAM → InnoDB, and fills the four volumes from the
+export (~660 MB). `litespeed-cache` is skipped — that cache layer does not exist
+here.
+
+## 4. Verify, then DNS
+
+```bash
+curl -sI --resolve www.aviacourse.com:443:<host-ip> https://www.aviacourse.com/ | head -n1
+curl -sI --resolve www.aviacourse.com:443:<host-ip> https://www.aviacourse.com/courses/icao-sms/ | head -n1
+```
+
+Both `200` → point the `A` records for `aviacourse.com` and `www` at the host.
+
+---
+
+## Why each fix is in the Dockerfile
+
+1. **`AllowOverride All`** — Debian's vhost forbids `.htaccess`, which would kill
+   permalinks and Tutor's hotlink rules.
+2. **PHP limits** — the old `php.ini` / `.user.ini` are cPanel artefacts that
+   mod_php ignores. Tutor course uploads need the 256M ceiling.
+3. **`X-Forwarded-Proto`** (in `wp-config.php`) — Traefik terminates TLS, so PHP
+   sees plain HTTP and WordPress redirect-loops without it.
+4. **opcache 50000 files** — the image default of 4000 is far below this site's
+   ~35k PHP files.
 
 ## After cutover
 
-- [ ] Log in to `/wp-admin`, check Tutor LMS courses and a WooCommerce test order.
-- [ ] Stripe + iyzico webhook URLs — same domain, so they should keep working; confirm in each dashboard.
-- [ ] Mailgun still sends (it is API/SMTP-based, unaffected by the move).
-- [ ] Google Site Kit / Analytics reconnect if it complains about the site URL.
-- [ ] **Recommended:** real cron instead of WP-Cron. Add `define( 'DISABLE_WP_CRON', true );`
-      to `wp-config.php` and a Coolify **Scheduled Task** on the `wordpress` service:
-      `php /var/www/html/wp-cron.php` every 5 minutes. Action Scheduler (WooCommerce)
-      is much healthier this way.
-- [ ] Set up Coolify backups on the `mariadb` service, plus a volume backup for `wp-html`.
+- [ ] wp-admin: Tutor LMS courses, a WooCommerce test order.
+- [ ] Stripe + iyzico webhooks — same domain, should be untouched; confirm anyway.
+- [ ] Enable scheduled backups on `aviacourse-mariadb`.
+- [ ] Real cron: set `WORDPRESS_DISABLE_WP_CRON=true` and add a Coolify scheduled
+      task running `php /var/www/html/wp-cron.php` every 5 minutes. Action
+      Scheduler (WooCommerce) is much healthier that way.
+- [ ] **Rotate the Coolify API token** that was shared in chat.
